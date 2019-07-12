@@ -2,6 +2,7 @@ package com.example.nyttrending
 
 import android.app.Dialog
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Color
 import android.graphics.Typeface
@@ -79,6 +80,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             .findFragmentById(R.id.map) as SupportMapFragment
         Log.e(TAG, "onCreate()")
         mapFragment.getMapAsync(this)
+
+        searchLogo.setOnClickListener {
+            var intent: Intent = Intent(applicationContext, TrendingActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     /**
@@ -106,19 +112,4 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-
-//    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-//        menuInflater.inflate(R.menu.menu_main, menu)
-//        return true
-//    }
-
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        var id : Int = item!!.itemId
-
-        if(id == R.id.nytLogo) {
-            Log.e(TAG, "CLICKED ON LOGO")
-            return true
-        }
-        return super.onOptionsItemSelected(item)
-    }
 }
