@@ -9,7 +9,7 @@
         android:orientation="vertical">
 
     <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
+            android:id="@+id/trendingToolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             style="@style/HeaderBar"
@@ -26,16 +26,23 @@
                     android:layout_width="24dp"
                     android:layout_height="match_parent"
                     android:src="@drawable/ic_arrow_back_black_24dp"
-                    />
+                    android:background="@android:color/transparent"
+            />
             <EditText
-                    android:id="@+id/searchBar"
+                    android:id="@+id/activityHeader"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_marginRight="25dp"
                     android:textSize="28dp"
                     android:text="Trending Articles"
                     android:textAlignment="center"
-                    android:inputType="none"/>
+                    android:inputType="none"
+                    android:clickable="false"
+                    android:focusable="false"
+                    android:contextClickable="false"
+                    android:longClickable="false"
+                    android:linksClickable="false"
+            />
 
         </LinearLayout>
     </androidx.appcompat.widget.Toolbar>

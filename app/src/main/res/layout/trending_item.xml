@@ -38,9 +38,10 @@
                     android:id="@+id/articlePublicationTime"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="2h ago"
+                    android:text="09/07/2019"
                     android:layout_below="@id/articleTitle"
                     android:layout_marginTop="15dp"
+                    android:textSize="9dp"
                     />
 
             <TextView
@@ -52,6 +53,7 @@
                     android:layout_alignParentEnd="true"
                     android:layout_marginTop="15dp"
                     android:layout_marginRight="15dp"
+                    android:textSize="9dp"
                     />
 
         </RelativeLayout>
