@@ -3,12 +3,12 @@ package com.example.nyttrending
 import android.graphics.Typeface
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import androidx.appcompat.widget.Toolbar
+import android.util.Log
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.nyttrending.Model.Article
 import com.example.nyttrending.ViewHolder.TrendingAdapter
-import kotlinx.android.synthetic.main.activity_maps.view.*
+import kotlinx.android.synthetic.main.activity_trending.*
 import kotlinx.android.synthetic.main.activity_trending.view.*
 
 class TrendingActivity : AppCompatActivity() {
@@ -22,17 +22,22 @@ class TrendingActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_trending)
+        Log.e("TAG", "TrendingView created.")
 
         mTopToolbar = findViewById(R.id.trendingToolbar)
         val font : Typeface = Typeface.createFromAsset(assets, "fonts/NYTCheltenhamExtraBold.otf")
         mTopToolbar.activityHeader.setTypeface(font)
-        mTopToolbar.activityHeader.keyListener = null
         setSupportActionBar(mTopToolbar)
 
         recyclerView = findViewById(R.id.trendingRecycler) as RecyclerView
         recyclerView!!.setHasFixedSize(true)
         layoutManager = LinearLayoutManager(this)
         recyclerView!!.layoutManager = layoutManager
+
+        backBtn.setOnClickListener {
+            onBackPressed()
+            finish()
+        }
 
         //Get article info passed from intent to make the API call.
 
@@ -56,7 +61,8 @@ class TrendingActivity : AppCompatActivity() {
         listOfArticles.add(article2)
         listOfArticles.add(article3)
         listOfArticles.add(article4)
-        trendingAdapter = TrendingAdapter(listOfArticles, this)
+        val font : Typeface = Typeface.createFromAsset(assets, "fonts/NYTCheltenhamExtraBold.otf")
+        trendingAdapter = TrendingAdapter(listOfArticles, font, this)
         recyclerView!!.adapter = trendingAdapter
 
     }

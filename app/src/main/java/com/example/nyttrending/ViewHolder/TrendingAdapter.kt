@@ -1,6 +1,7 @@
 package com.example.nyttrending.ViewHolder
 
 import android.content.Context
+import android.graphics.Typeface
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -11,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.nyttrending.Model.Article
 import com.example.nyttrending.R
 import com.squareup.picasso.Picasso
+import kotlinx.android.synthetic.main.activity_maps.view.*
 import kotlinx.android.synthetic.main.trending_item.view.*
 
 
@@ -34,14 +36,16 @@ class TrendingViewHolder(v: View) : RecyclerView.ViewHolder(v), View.OnClickList
 }
 
 
-class TrendingAdapter(listOfArticles: ArrayList<Article>, context: Context) : RecyclerView.Adapter<TrendingViewHolder>() {
+class TrendingAdapter(listOfArticles: ArrayList<Article>, font: Typeface, context: Context) : RecyclerView.Adapter<TrendingViewHolder>() {
 
     var listOfArticles = ArrayList<Article>()
     var context: Context? = null
+    var font: Typeface? = null
 
     init {
         this.listOfArticles = listOfArticles
         this.context = context
+        this.font = font
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrendingViewHolder {
@@ -56,6 +60,7 @@ class TrendingAdapter(listOfArticles: ArrayList<Article>, context: Context) : Re
 
         Picasso.get().load(listOfArticles[position].imageURL).into(holder.articleImage)
         holder.articleTitle!!.text = listOfArticles[position].title
+        holder.articleTitle!!.setTypeface(font)
         holder.articlePublicationTime!!.text = listOfArticles[position].publicationTime
         holder.articleViews!!.text = listOfArticles[position].views + " views"
 

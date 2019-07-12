@@ -5,4 +5,5 @@
     <color name="colorAccent">#D81B60</color>
     <color name="instructionsPopupBackground">#C4FFFFFF</color>
     <color name="appBarColor">#FFFFFF</color>
+    <color name="lessImportantColor">#C4FFFFFF</color>
 </resources>

@@ -23,12 +23,13 @@
                 android:orientation="horizontal">
 
             <ImageButton
+                    android:id="@+id/backBtn"
                     android:layout_width="24dp"
                     android:layout_height="match_parent"
                     android:src="@drawable/ic_arrow_back_black_24dp"
                     android:background="@android:color/transparent"
             />
-            <EditText
+            <TextView
                     android:id="@+id/activityHeader"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
@@ -36,12 +37,7 @@
                     android:textSize="28dp"
                     android:text="Trending Articles"
                     android:textAlignment="center"
-                    android:inputType="none"
-                    android:clickable="false"
-                    android:focusable="false"
-                    android:contextClickable="false"
-                    android:longClickable="false"
-                    android:linksClickable="false"
+                    android:background="?attr/editTextBackground"
             />
 
         </LinearLayout>

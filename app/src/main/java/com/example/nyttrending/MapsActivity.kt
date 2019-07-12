@@ -10,6 +10,7 @@ import android.graphics.drawable.ColorDrawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -81,10 +82,21 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         Log.e(TAG, "onCreate()")
         mapFragment.getMapAsync(this)
 
+        searchBar.setOnKeyListener(View.OnKeyListener { v, keyCode, event ->
+            if ((event.getAction() == KeyEvent.ACTION_DOWN) &&
+                (keyCode == KeyEvent.KEYCODE_ENTER)) {
+                goToTrendingPage()
+            }
+            true
+        })
         searchLogo.setOnClickListener {
-            var intent: Intent = Intent(applicationContext, TrendingActivity::class.java)
-            startActivity(intent)
+            goToTrendingPage()
         }
+    }
+
+    private fun goToTrendingPage() {
+        var intent: Intent = Intent(applicationContext, TrendingActivity::class.java)
+        startActivity(intent)
     }
 
     /**
