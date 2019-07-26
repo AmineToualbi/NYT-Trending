@@ -1,0 +1,19 @@
+query MapQuery($place: String!) {
+  getArticles(article: $place) {
+    headline
+    article
+    views
+    media
+  }
+}
+
+#Places the markers. Use when user is moving around the map.
+query LocationQuery($zoomLevel: Int!, $neCoord: CoordinateInput!, $swCoord: CoordinateInput!) {
+  getLocations(zoomLevel: $zoomLevel, neCoord: $neCoord, swCoord: $swCoord) {
+    name
+    location {
+      latitude
+      longitude
+    }
+  }
+}
