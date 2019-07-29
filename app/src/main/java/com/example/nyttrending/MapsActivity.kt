@@ -4,6 +4,7 @@ import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.res.Resources
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
@@ -30,6 +31,7 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.maps.android.ui.IconGenerator
 import io.reactivex.Observable
@@ -47,7 +49,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var instructionsPopup : Dialog
     private lateinit var mTopToolbar : androidx.appcompat.widget.Toolbar
 
-    private val BASE_URL = "http://10.51.235.194:3000/graphql"
+    private val BASE_URL = "http://10.51.228.97:3000/graphql"      //docker compose up
     private var okHttpClient: OkHttpClient? = null
     private var apolloClient: ApolloClient? = null
 
@@ -112,16 +114,41 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private fun placeMarkers(markerLocations: List<MarkerLocation>) {
         for(i in 0..markerLocations.size-1) {
             val markerLocation = markerLocations.get(i)
-            Log.e(TAG, "Placing marker " + markerLocation.name)
+            val markerName = getMarkerName(markerLocation.name)
+            Log.e(TAG, "Placing marker " + markerName)
             val location = LatLng(markerLocation.latitude, markerLocation.longitude)
-            mMap.addMarker(MarkerOptions().position(location).title(markerLocation.name)
-                .icon(BitmapDescriptorFactory.fromBitmap(iconGenerator!!.makeIcon(markerLocation.name))))
+            mMap.addMarker(MarkerOptions().position(location).title(markerName)
+                .icon(BitmapDescriptorFactory.fromBitmap(iconGenerator!!.makeIcon(markerName))))
         }
+    }
+
+    private fun getMarkerName(locationName: String) : String {
+//        if(locationName.contains('/')) {
+//            for (i0..locationName.length-1) {
+//                if (locationName[i] == '/') {
+//                    Log.e("TAG", "Icon Name = " + locationName.substring(i + 1, locationName.length))
+//                    return locationName.substring(i + 1, locationName.length)
+//                }
+//            }
+//        }
+        return locationName
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
-        mMap.mapType = GoogleMap.MAP_TYPE_NORMAL
+
+        try {
+            val success: Boolean = mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.map_style))
+            if(!success) {
+                Log.e(TAG, "Style parsing failed.")
+            }
+            else {
+                Log.e(TAG, "Style parsing done.")
+            }
+        }
+        catch (e: Resources.NotFoundException) {
+            Log.e(TAG, "Can't find style.", e)
+        }
 
         Log.e(TAG, "onMapReady()")
 
