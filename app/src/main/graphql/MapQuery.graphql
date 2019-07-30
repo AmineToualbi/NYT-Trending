@@ -1,5 +1,5 @@
-query MapQuery($place: String!) {
-  getArticles(article: $place) {
+query ArticlesQuery($location: String!) {
+  getArticles(location: $location) {
     headline
     article
     views
