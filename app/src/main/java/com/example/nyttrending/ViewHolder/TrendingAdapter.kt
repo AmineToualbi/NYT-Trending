@@ -9,29 +9,34 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.nyttrending.Interface.ItemClickListener
 import com.example.nyttrending.Model.Article
 import com.example.nyttrending.R
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_maps.view.*
 import kotlinx.android.synthetic.main.trending_item.view.*
+import androidx.core.content.ContextCompat.startActivity
+import android.content.Intent
+import com.example.nyttrending.ArticleWebActivity
 
 
 class TrendingViewHolder(v: View) : RecyclerView.ViewHolder(v), View.OnClickListener {
 
     var articleImage : ImageView? = null
     var articleTitle: TextView? = null
-    var articlePublicationTime: TextView? = null
     var articleViews: TextView? = null
+    var itemClickListener: ItemClickListener? = null
 
     init {
         articleImage = v.findViewById(R.id.articleImage) as ImageView
         articleTitle = v.findViewById(R.id.articleTitle) as TextView
-        articlePublicationTime = v.findViewById(R.id.articlePublicationTime) as TextView
         articleViews = v.findViewById(R.id.articleViews) as TextView
+        v.setOnClickListener(this)
     }
 
     override fun onClick(v: View?) {
         Log.e("TAG", "onClick() -> open article URL")
+        itemClickListener!!.onClick(v!!, adapterPosition, false)
     }
 }
 
@@ -61,8 +66,15 @@ class TrendingAdapter(listOfArticles: ArrayList<Article>, font: Typeface, contex
         Picasso.get().load(listOfArticles[position].imageURL).into(holder.articleImage)
         holder.articleTitle!!.text = listOfArticles[position].title
         holder.articleTitle!!.setTypeface(font)
-        holder.articlePublicationTime!!.text = listOfArticles[position].publicationTime
-        holder.articleViews!!.text = listOfArticles[position].views + " views"
+        holder.articleViews!!.text = "${listOfArticles[position].views}  views"
+
+        holder.itemClickListener = (object : ItemClickListener {
+            override fun onClick(view: View, position: Int, isLongClick: Boolean) {
+                val articleWebView = Intent(context!!.applicationContext, ArticleWebActivity::class.java)
+                articleWebView.putExtra("ArticleURL", listOfArticles[position].articleURL)
+                startActivity(context!!, articleWebView, null)
+            }
+        })
 
     }
 

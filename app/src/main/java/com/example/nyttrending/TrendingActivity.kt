@@ -17,7 +17,7 @@ class TrendingActivity : AppCompatActivity() {
     var layoutManager: RecyclerView.LayoutManager? = null
     var trendingAdapter: TrendingAdapter? = null
     private lateinit var mTopToolbar : androidx.appcompat.widget.Toolbar
-
+    var listOfArticles : ArrayList<Article>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,30 +39,20 @@ class TrendingActivity : AppCompatActivity() {
             finish()
         }
 
-        //Get article info passed from intent to make the API call.
+        if(intent != null) {
+            val articles = intent.getParcelableArrayListExtra<Article>("articles")
+            listOfArticles = articles
+            Log.e("TAG", articles.toString())
+        }
 
-        //Make the API call & check if value returned is not null. If not null => loadArticles();
         loadArticles()
 
     }
 
     private fun loadArticles() {
 
-        val article1 =
-            Article("Title of Article 1", "https://blog.hubspot.com/hubfs/image8-2.jpg", "09/07/2019", "8122")
-        val article2 = Article("Title of Article 2", "https://facebookbrand.com/wp-content/uploads/2019/04/f_logo_RGB-Hex-Blue_512.png",
-            "03/06/2019", "7412")
-        val article3 = Article("Title of Article 2", "https://facebookbrand.com/wp-content/uploads/2019/04/f_logo_RGB-Hex-Blue_512.png",
-            "03/06/2019", "7412")
-        val article4 = Article("Title of Article 2", "https://facebookbrand.com/wp-content/uploads/2019/04/f_logo_RGB-Hex-Blue_512.png",
-            "03/06/2019", "7412")
-        var listOfArticles = ArrayList<Article>()
-        listOfArticles.add(article1)
-        listOfArticles.add(article2)
-        listOfArticles.add(article3)
-        listOfArticles.add(article4)
         val font : Typeface = Typeface.createFromAsset(assets, "fonts/NYTCheltenhamExtraBold.otf")
-        trendingAdapter = TrendingAdapter(listOfArticles, font, this)
+        trendingAdapter = TrendingAdapter(listOfArticles!!, font, applicationContext)
         recyclerView!!.adapter = trendingAdapter
 
     }
