@@ -52,7 +52,8 @@
                         android:imeActionId="666"
                         android:inputType="textAutoComplete"
                         android:maxLines="1"
-                        android:outlineSpotShadowColor="@color/black"
+                        app:backgroundTint="@color/black"
+                        android:textCursorDrawable="@null"
                         android:textAlignment="center"/>
 
         </LinearLayout>
