@@ -16,12 +16,14 @@ import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.inputmethod.EditorInfo
 import android.widget.Button
 import android.widget.Toolbar
 import com.apollographql.apollo.ApolloCall
 import com.apollographql.apollo.ApolloClient
 import com.apollographql.apollo.api.Response
 import com.apollographql.apollo.exception.ApolloException
+import com.apollographql.apollo.rx.RxApollo
 import com.example.nyttrending.Model.Article
 import com.example.nyttrending.Model.CoordinateInput
 import com.example.nyttrending.Model.MarkerLocation
@@ -32,11 +34,13 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.google.maps.android.ui.IconGenerator
-import io.reactivex.Observable
-import io.reactivex.subjects.PublishSubject
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.activity_maps.*
 import kotlinx.android.synthetic.main.activity_maps.view.*
 import okhttp3.OkHttpClient
+import rx.Observable
+import rx.schedulers.Schedulers
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -56,6 +60,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     var iconGenerator: IconGenerator? = null
 
+    var currentMarkers: List<MarkerLocation>? = null
+
+
     //Callback variables handling the data received.
     //mapQueryCallback returns articles for a specific location.
     val articlesQueryCallback = object : ApolloCall.Callback<ArticlesQuery.Data>() {
@@ -64,18 +71,19 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         override fun onResponse(response: Response<ArticlesQuery.Data>) {
-      //      Log.e("TAG", response.data().toString())
+            //      Log.e("TAG", response.data().toString())
             val articles = response.data()?.articles?.map {
-                Article(it.headline()!!,
+                Article(
+                    it.headline()!!,
                     it.article(),
                     it.media(),
-                    it.views())
+                    it.views()
+                )
             }
             val intent = Intent(applicationContext, TrendingActivity::class.java)
             intent.putParcelableArrayListExtra("articles", ArrayList(articles))
             startActivity(intent)
         }
-
     }
     //locationQueryCallback returns the locations to show on the screen with markers.
     val locationQueryCallback = object : ApolloCall.Callback<LocationQuery.Data>() {
@@ -92,8 +100,35 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     it.location().longitude()
                 )
             }
+            if (markerLocations?.isEmpty() == false) {
+                currentMarkers = markerLocations
+            }
             runOnUiThread {
                 placeMarkers(markerLocations!!)
+            }
+        }
+    }
+    val searchQueryCallback = object : ApolloCall.Callback<SearchQuery.Data>() {
+        override fun onFailure(e: ApolloException) {
+            Log.e("TAG", e.toString())
+        }
+
+        override fun onResponse(response: Response<SearchQuery.Data>) {
+            val marker = MarkerLocation(response.data()?.search()?.place()!!,
+                response.data()?.search()?.location()!!.latitude(),
+                response.data()?.search()?.location()!!.longitude())
+            val locationPath = response.data()?.search()?.path()
+            val articleQ = ArticlesQuery.builder().location(locationPath!!).build()
+            apolloClient!!.query(articleQ).enqueue(articlesQueryCallback)
+
+            runOnUiThread {
+                placeMarkers(listOf(marker))
+                mMap.animateCamera(
+                    CameraUpdateFactory.newLatLngZoom(
+                        LatLng(marker.latitude, marker.longitude),
+                        5.0f
+                    )
+                )
             }
         }
     }
@@ -126,31 +161,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     }
 
-    private fun placeMarkers(markerLocations: List<MarkerLocation>) {
-        for (i in 0..markerLocations.size - 1) {
-            val markerLocation = markerLocations.get(i)
-            val markerName = getMarkerName(markerLocation.name)
-            Log.e(TAG, "Placing marker " + markerName)
-            val location = LatLng(markerLocation.latitude, markerLocation.longitude)
-            mMap.addMarker(
-                MarkerOptions().position(location).title(markerLocation.name)   //title is used to make API call.
-                    .icon(BitmapDescriptorFactory.fromBitmap(iconGenerator!!.makeIcon(markerName)))
-            )
-        }
-    }
-
-    private fun getMarkerName(locationName: String): String {
-        if (locationName.contains('/')) {
-            for (i in locationName.length - 1 downTo 0) {
-                if (locationName[i] == '/') {
-                    Log.e("TAG", "Icon Name = " + locationName.substring(i + 1, locationName.length))
-                    return locationName.substring(i + 1, locationName.length)
-                }
-            }
-        }
-        return locationName
-    }
-
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
 
@@ -167,9 +177,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         Log.e(TAG, "onMapReady()")
 
-        // Add a marker in Sydney and move the camera
-//            val newYork = LatLng(-40.7562, 73.9904)
-//            mMap.addMarker(MarkerOptions().position(newYork).title("New York"))
         val initialLocation = LatLng(40.75, -73.98)
         mMap.addMarker(
             MarkerOptions().position(initialLocation).title("New York")
@@ -182,9 +189,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             )
         )      //TODO - Change this to 12.0f
 
-
         mMap.setOnCameraMoveListener {
             val currentUpdateTime = System.currentTimeMillis()
+            Log.e("CURRENT", currentMarkers.toString())
             if (currentUpdateTime - lastMarkerUpdateTime >= 250) {
                 lastMarkerUpdateTime = currentUpdateTime
                 mMap.clear()                //When moving, remove all markers from the app before putting new ones.
@@ -199,11 +206,37 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+    private fun placeMarkers(markerLocations: List<MarkerLocation>) {
+        for (i in 0..markerLocations.size - 1) {
+            val markerLocation = markerLocations.get(i)
+            val markerName = getMarkerName(markerLocation.name)
+            Log.e(TAG, "Placing marker " + markerName)
+            val location = LatLng(markerLocation.latitude, markerLocation.longitude)
+            mMap.addMarker(
+                MarkerOptions().position(location).title(markerLocation.name)   //title is used to make API call.
+                    .icon(BitmapDescriptorFactory.fromBitmap(iconGenerator!!.makeIcon(markerName)))
+            )
+        }
+
+    }
+
+
+    private fun getMarkerName(locationName: String): String {
+        if (locationName.contains('/')) {
+            for (i in locationName.length - 1 downTo 0) {
+                if (locationName[i] == '/') {
+                    Log.e("TAG", "Icon Name = " + locationName.substring(i + 1, locationName.length))
+                    return locationName.substring(i + 1, locationName.length)
+                }
+            }
+        }
+        return locationName
+    }
+
+
     private fun makeGetArticlesAPICall(location: String) {
         val mapQ = ArticlesQuery.builder().location(location).build()
         apolloClient!!.query(mapQ).enqueue(articlesQueryCallback)
-        //   val mapQ = MapQuery.builder().article(location).build()
-        //  apolloClient!!.query(mapQ).enqueue(mapQueryCallback)
     }
 
     private fun makeMarkerLocationAPICall() {
@@ -214,34 +247,18 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         val ne = type.CoordinateInput.builder().latitude(northEast.latitude).longitude(northEast.longitude).build()
         val zoom = mMap.cameraPosition.zoom.toInt()
         Log.e(TAG, "Current Zoom lvl. is $zoom")
-        var locationQ = LocationQuery.builder().neCoord(ne).swCoord(sw).zoomLevel(zoom).build()
+        var locationQ = LocationQuery.builder().neCoord(ne).swCoord(sw).zoomLevel(zoom+1).build()
 
-        apolloClient!!.query(locationQ).enqueue(locationQueryCallback)
+        val apolloCall: ApolloCall<LocationQuery.Data> = apolloClient!!.query(locationQ)
+        apolloCall.enqueue(locationQueryCallback)
     }
 
-    private fun setupToolbar() {
-        mTopToolbar = findViewById(R.id.toolbar)
-        val font: Typeface = Typeface.createFromAsset(assets, "fonts/NYTCheltenhamExtraBold.otf")
-        mTopToolbar.searchBar.setTypeface(font)
-        setSupportActionBar(mTopToolbar)
-
-        searchBar.setOnKeyListener(View.OnKeyListener { v, keyCode, event ->
-            if ((event.getAction() == KeyEvent.ACTION_DOWN) &&
-                (keyCode == KeyEvent.KEYCODE_ENTER)
-            ) {
-                goToTrendingPage()
-            }
-            true
-        })
-        searchLogo.setOnClickListener {
-            goToTrendingPage()
-        }
-    }
 
     private fun goToTrendingPage() {
         var intent = Intent(applicationContext, TrendingActivity::class.java)
         startActivity(intent)
     }
+
 
     private fun showInstructionsPopup() {
         //Check if first open.
@@ -272,6 +289,31 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
 
+    }
+
+
+    private fun setupToolbar() {
+        mTopToolbar = findViewById(R.id.toolbar)
+        val font: Typeface = Typeface.createFromAsset(assets, "fonts/NYTCheltenhamExtraBold.otf")
+        mTopToolbar.searchBar.setTypeface(font)
+        setSupportActionBar(mTopToolbar)
+
+        searchBar.setOnEditorActionListener { v, actionId, event ->
+            if(actionId == EditorInfo.IME_ACTION_GO) {
+                mMap.clear()
+                val searchQ = SearchQuery.builder().place(searchBar.text.toString()).build()
+                Log.e("TAG", "SearchQ for " + searchBar.text.toString())
+                apolloClient!!.query(searchQ).enqueue(searchQueryCallback)
+            }
+            true
+        }
+        searchLogo.setOnClickListener {
+            mMap.clear()
+            val searchQ = SearchQuery.builder().place(searchBar.text.toString()).build()
+            Log.e("TAG", "SearchQ for " + searchBar.text.toString())
+            apolloClient!!.query(searchQ).enqueue(searchQueryCallback)
+          //  goToTrendingPage()
+        }
     }
 }
 

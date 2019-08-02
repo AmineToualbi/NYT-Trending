@@ -6,4 +6,6 @@
     <color name="instructionsPopupBackground">#C4FFFFFF</color>
     <color name="appBarColor">#FFFFFF</color>
     <color name="lessImportantColor">#C4FFFFFF</color>
+    <color name="black">#C4000000</color>
+
 </resources>

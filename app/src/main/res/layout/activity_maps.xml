@@ -48,6 +48,11 @@
                         android:layout_marginRight="25dp"
                         android:textSize="28dp"
                         android:hint="Search"
+                        android:imeOptions="actionGo"
+                        android:imeActionId="666"
+                        android:inputType="textAutoComplete"
+                        android:maxLines="1"
+                        android:outlineSpotShadowColor="@color/black"
                         android:textAlignment="center"/>
 
         </LinearLayout>

@@ -17,7 +17,7 @@ import kotlinx.android.synthetic.main.activity_maps.view.*
 import kotlinx.android.synthetic.main.trending_item.view.*
 import androidx.core.content.ContextCompat.startActivity
 import android.content.Intent
-import com.example.nyttrending.ArticleWebActivity
+import android.net.Uri
 
 
 class TrendingViewHolder(v: View) : RecyclerView.ViewHolder(v), View.OnClickListener {
@@ -70,9 +70,9 @@ class TrendingAdapter(listOfArticles: ArrayList<Article>, font: Typeface, contex
 
         holder.itemClickListener = (object : ItemClickListener {
             override fun onClick(view: View, position: Int, isLongClick: Boolean) {
-                val articleWebView = Intent(context!!.applicationContext, ArticleWebActivity::class.java)
-                articleWebView.putExtra("ArticleURL", listOfArticles[position].articleURL)
-                startActivity(context!!, articleWebView, null)
+                val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(listOfArticles[position].articleURL))
+                browserIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                startActivity(context!!, browserIntent, null)
             }
         })
 

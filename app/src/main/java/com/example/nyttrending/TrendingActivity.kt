@@ -20,6 +20,7 @@ class TrendingActivity : AppCompatActivity() {
     var listOfArticles : ArrayList<Article>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_trending)
         Log.e("TAG", "TrendingView created.")
@@ -50,10 +51,8 @@ class TrendingActivity : AppCompatActivity() {
     }
 
     private fun loadArticles() {
-
         val font : Typeface = Typeface.createFromAsset(assets, "fonts/NYTCheltenhamExtraBold.otf")
         trendingAdapter = TrendingAdapter(listOfArticles!!, font, applicationContext)
         recyclerView!!.adapter = trendingAdapter
-
     }
 }

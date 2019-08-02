@@ -17,3 +17,16 @@ query LocationQuery($zoomLevel: Int!, $neCoord: CoordinateInput!, $swCoord: Coor
     }
   }
 }
+
+query searchQuery($place:String!){
+  search(place:$place){
+    place
+    collection
+    path
+    location {
+      latitude
+      longitude
+    }
+  }
+}
+
