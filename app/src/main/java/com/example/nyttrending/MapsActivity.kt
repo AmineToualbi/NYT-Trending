@@ -126,6 +126,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         override fun onResponse(response: Response<SearchQuery.Data>) {
+            if(response.data()?.search()?.place() == null) {
+                runOnUiThread {
+                    Toast.makeText(applicationContext, "Location not found!", Toast.LENGTH_SHORT).show()
+                }
+                return
+            }
             val marker = MarkerLocation(response.data()?.search()?.place()!!,
                 response.data()?.search()?.location()!!.latitude(),
                 response.data()?.search()?.location()!!.longitude())
