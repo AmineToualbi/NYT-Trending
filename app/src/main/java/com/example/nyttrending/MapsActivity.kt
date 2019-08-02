@@ -18,6 +18,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.Button
+import android.widget.Toast
 import android.widget.Toolbar
 import com.apollographql.apollo.ApolloCall
 import com.apollographql.apollo.ApolloClient
@@ -34,12 +35,13 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.google.maps.android.ui.IconGenerator
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.activity_maps.*
 import kotlinx.android.synthetic.main.activity_maps.view.*
 import okhttp3.OkHttpClient
-import rx.Observable
 import rx.schedulers.Schedulers
 import java.util.*
 import kotlin.collections.ArrayList
@@ -62,6 +64,15 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     var currentMarkers: List<MarkerLocation>? = null
 
+    val mapOfContinents = mapOf(
+        "AF" to "Africa",
+        "EU" to "Europe",
+        "NA" to "North America",
+        "SA" to "South America",
+        "OC" to "Oceania",
+        "AS" to "Asia"
+    )
+
 
     //Callback variables handling the data received.
     //mapQueryCallback returns articles for a specific location.
@@ -75,6 +86,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             val articles = response.data()?.articles?.map {
                 Article(
                     it.headline()!!,
+                    it.byline()!!,
                     it.article(),
                     it.media(),
                     it.views()
@@ -207,7 +219,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun placeMarkers(markerLocations: List<MarkerLocation>) {
-        for (i in 0..markerLocations.size - 1) {
+
+        for (i in 0 until markerLocations.size) {
             val markerLocation = markerLocations.get(i)
             val markerName = getMarkerName(markerLocation.name)
             Log.e(TAG, "Placing marker " + markerName)
@@ -225,12 +238,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         if (locationName.contains('/')) {
             for (i in locationName.length - 1 downTo 0) {
                 if (locationName[i] == '/') {
-                    Log.e("TAG", "Icon Name = " + locationName.substring(i + 1, locationName.length))
                     return locationName.substring(i + 1, locationName.length)
                 }
             }
         }
-        return locationName
+        return mapOfContinents[locationName]!!
     }
 
 
@@ -247,7 +259,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         val ne = type.CoordinateInput.builder().latitude(northEast.latitude).longitude(northEast.longitude).build()
         val zoom = mMap.cameraPosition.zoom.toInt()
         Log.e(TAG, "Current Zoom lvl. is $zoom")
-        var locationQ = LocationQuery.builder().neCoord(ne).swCoord(sw).zoomLevel(zoom+1).build()
+        var locationQ = LocationQuery.builder().neCoord(ne).swCoord(sw).zoomLevel(zoom + 1).build()
 
         val apolloCall: ApolloCall<LocationQuery.Data> = apolloClient!!.query(locationQ)
         apolloCall.enqueue(locationQueryCallback)
@@ -299,7 +311,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         setSupportActionBar(mTopToolbar)
 
         searchBar.setOnEditorActionListener { v, actionId, event ->
-            if(actionId == EditorInfo.IME_ACTION_GO) {
+            if (actionId == EditorInfo.IME_ACTION_GO) {
                 mMap.clear()
                 val searchQ = SearchQuery.builder().place(searchBar.text.toString()).build()
                 Log.e("TAG", "SearchQ for " + searchBar.text.toString())
@@ -312,7 +324,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             val searchQ = SearchQuery.builder().place(searchBar.text.toString()).build()
             Log.e("TAG", "SearchQ for " + searchBar.text.toString())
             apolloClient!!.query(searchQ).enqueue(searchQueryCallback)
-          //  goToTrendingPage()
+            //  goToTrendingPage()
         }
     }
 }

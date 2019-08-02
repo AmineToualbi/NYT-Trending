@@ -32,7 +32,7 @@
                     android:layout_marginTop="10dp"
                     android:layout_weight="8"
                     android:textSize="14dp"
-                    />
+            />
 
             <TextView
                     android:id="@+id/articleViews"
@@ -43,8 +43,20 @@
                     android:layout_alignParentEnd="true"
                     android:layout_marginTop="15dp"
                     android:layout_marginRight="15dp"
-                    android:textSize="9dp"
+                    android:textSize="11dp"
             />
+
+            <TextView
+                    android:id="@+id/articleAuthor"
+                    android:layout_width="100dp"
+                    android:scrollHorizontally="false"
+                    android:layout_height="wrap_content"
+                    android:text="Amine Toualbi"
+                    android:layout_below="@id/articleTitle"
+                    android:layout_alignTop="@id/articleViews"
+                    android:textSize="11dp"
+                    android:layout_marginLeft="7dp"
+                    />
 
         </RelativeLayout>
 

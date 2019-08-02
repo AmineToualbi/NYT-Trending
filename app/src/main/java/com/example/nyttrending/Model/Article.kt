@@ -3,7 +3,13 @@ package com.example.nyttrending.Model
 import android.os.Parcel
 import android.os.Parcelable
 
-data class Article(var title: String, var articleURL: String, var imageURL: String?, var views: Int) : Parcelable {
+data class Article(
+    var title: String,
+    var author: String,
+    var articleURL: String,
+    var imageURL: String?,
+    var views: Int
+) : Parcelable {
 
     companion object {
         @JvmField
@@ -14,13 +20,16 @@ data class Article(var title: String, var articleURL: String, var imageURL: Stri
     }
 
     private constructor(parcel: Parcel) : this(
-        title = parcel.readString(),
-        articleURL = parcel.readString(),
+        title = parcel.readString()!!,
+        author = parcel.readString()!!,
+        articleURL = parcel.readString()!!,
         imageURL = parcel.readString(),
-        views = parcel.readInt())
+        views = parcel.readInt()
+    )
 
     override fun writeToParcel(parcel: Parcel?, flags: Int) {
         parcel!!.writeString(title)
+        parcel.writeString(author)
         parcel.writeString(articleURL)
         parcel.writeString(imageURL)
         parcel.writeInt(views)

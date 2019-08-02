@@ -25,12 +25,14 @@ class TrendingViewHolder(v: View) : RecyclerView.ViewHolder(v), View.OnClickList
     var articleImage : ImageView? = null
     var articleTitle: TextView? = null
     var articleViews: TextView? = null
+    var articleAuthor: TextView? = null
     var itemClickListener: ItemClickListener? = null
 
     init {
         articleImage = v.findViewById(R.id.articleImage) as ImageView
         articleTitle = v.findViewById(R.id.articleTitle) as TextView
         articleViews = v.findViewById(R.id.articleViews) as TextView
+        articleAuthor = v.findViewById(R.id.articleAuthor) as TextView
         v.setOnClickListener(this)
     }
 
@@ -67,6 +69,8 @@ class TrendingAdapter(listOfArticles: ArrayList<Article>, font: Typeface, contex
         holder.articleTitle!!.text = listOfArticles[position].title
         holder.articleTitle!!.setTypeface(font)
         holder.articleViews!!.text = "${listOfArticles[position].views}  views"
+        holder.articleAuthor!!.text = listOfArticles[position].author
+        holder.articleAuthor!!.setTypeface(font)
 
         holder.itemClickListener = (object : ItemClickListener {
             override fun onClick(view: View, position: Int, isLongClick: Boolean) {
