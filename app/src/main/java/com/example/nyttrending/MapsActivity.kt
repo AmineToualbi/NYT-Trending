@@ -54,7 +54,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var instructionsPopup: Dialog
     private lateinit var mTopToolbar: androidx.appcompat.widget.Toolbar
 
-    private val BASE_URL = "http://10.51.228.97:3000/graphql"      //docker compose up
+    private val BASE_URL = "http://10.51.200.99:3000/graphql"      //docker compose up
     private var okHttpClient: OkHttpClient? = null
     private var apolloClient: ApolloClient? = null
 
@@ -72,7 +72,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         "OC" to "Oceania",
         "AS" to "Asia"
     )
-
 
     //Callback variables handling the data received.
     //mapQueryCallback returns articles for a specific location.
@@ -209,7 +208,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         mMap.setOnCameraMoveListener {
             val currentUpdateTime = System.currentTimeMillis()
-            Log.e("CURRENT", currentMarkers.toString())
             if (currentUpdateTime - lastMarkerUpdateTime >= 250) {
                 lastMarkerUpdateTime = currentUpdateTime
                 mMap.clear()                //When moving, remove all markers from the app before putting new ones.
@@ -248,7 +246,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
             }
         }
-        return mapOfContinents[locationName]!!
+        if(mapOfContinents[locationName] != null)  return mapOfContinents[locationName]!!
+        return locationName
     }
 
 
