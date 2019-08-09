@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="100" height="150" src="http://image.noelshack.com/fichiers/2019/32/5/1565318346-nyttrending-logo.png">
+  <img width="125" height="150" src="http://image.noelshack.com/fichiers/2019/32/5/1565318346-nyttrending-logo.png">
 </p>
 
 # NYT-Trending
