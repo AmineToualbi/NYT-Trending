@@ -1,3 +1,7 @@
+<p align="center">
+  <img width="150" height="150" src="http://image.noelshack.com/fichiers/2019/32/5/1565318346-nyttrending-logo.png">
+</p>
+
 # NYT-Trending
 
 Android app developed in parallel with a web internal tool to visualize what articles are trending and where in the world. 
